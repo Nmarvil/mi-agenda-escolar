@@ -1,0 +1,67 @@
+let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+
+function guardarTareas() {
+  localStorage.setItem('tareas', JSON.stringify(tareas));
+}
+
+function renderizarTareas() {
+  const listaPendientes = document.getElementById('lista-pendientes');
+  const listaCompletadas = document.getElementById('lista-completadas');
+  listaPendientes.innerHTML = '';
+  listaCompletadas.innerHTML = '';
+
+  tareas.forEach((tarea, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div>
+        <strong>${tarea.titulo}</strong> - ${tarea.materia} (para ${tarea.fecha})<br>
+        <small>${tarea.descripcion}</small>
+      </div>
+      <div>
+        ${!tarea.completada ? `<button onclick="completarTarea(${index})">✅</button>` : ''}
+        <button onclick="eliminarTarea(${index})">🗑️</button>
+      </div>
+    `;
+
+    if (tarea.completada) {
+      listaCompletadas.appendChild(li);
+    } else {
+      listaPendientes.appendChild(li);
+    }
+  });
+}
+
+function completarTarea(index) {
+  tareas[index].completada = true;
+  guardarTareas();
+  renderizarTareas();
+}
+
+function eliminarTarea(index) {
+  tareas.splice(index, 1);
+  guardarTareas();
+  renderizarTareas();
+}
+
+document.getElementById('form-tarea').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const titulo = document.getElementById('titulo').value;
+  const materia = document.getElementById('materia').value;
+  const fecha = document.getElementById('fecha').value;
+  const descripcion = document.getElementById('descripcion').value;
+
+  const nuevaTarea = {
+    titulo,
+    materia,
+    fecha,
+    descripcion,
+    completada: false
+  };
+
+  tareas.push(nuevaTarea);
+  guardarTareas();
+  renderizarTareas();
+  e.target.reset();
+});
+
+renderizarTareas();  
